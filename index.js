@@ -39,7 +39,7 @@ module.exports = function (options, fn) {
       }
       valueChanged();
       lastTime = Date.now();
-      if (callRefresh && !promise) {
+      if (callRefresh) {
         refresh();
       }
     }

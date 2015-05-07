@@ -280,12 +280,10 @@ describe('throttle', function () {
       });
 
       it("skips calls if they are within the throttle, but always runs the last", function () {
-        return new Promise(function (done) {
-          h.refresh = done;
-          expectToBeCalled(function () { t(1); });
-        }).then(function () {
-          return wait(1);
-        }).then(function () {
+        h.refresh = function () {};
+
+        expectToBeCalled(function () { t(1); });
+        return wait(5).then(function () {
           expect(values).to.eql([
             'starting 1',
             'finishing 1',
@@ -310,21 +308,46 @@ describe('throttle', function () {
         }).then(function () {
           return wait(1);
         }).then(function () {
-          return new Promise(function (done) {
-            h.refresh = done;
-
-            expect(values).to.eql([
-              'starting 1',
-              'finishing 1',
-            ]);
-            expectNotToBeCalled(function () { t(5); });
-          });
+          expect(values).to.eql([
+            'starting 1',
+            'finishing 1',
+          ]);
+          expectNotToBeCalled(function () { t(5); });
+        }).then(function () {
+          return wait(throttleDuration * 2);
         }).then(function () {
           expect(values).to.eql([
             'starting 1',
             'finishing 1',
             'starting 5',
             'finishing 5'
+          ]);
+        });
+      });
+
+      it('for throttled calls, calls refresh at start and end of promise call', function () {
+        var refreshValues = [];
+
+        return new Promise(function (done) {
+          var refreshed = 0;
+
+          h.refresh = function () {
+            refreshed++;
+
+            refreshValues.push(values.slice());
+
+            if (refreshed >= 3) {
+              done();
+            }
+          };
+
+          t(1);
+          t(2);
+        }).then(function () {
+          expect(refreshValues).to.eql([
+            ['starting 1', 'finishing 1'],
+            ['starting 1', 'finishing 1', 'starting 2'],
+            ['starting 1', 'finishing 1', 'starting 2', 'finishing 2']
           ]);
         });
       });
