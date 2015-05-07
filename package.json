@@ -28,9 +28,5 @@
     "url": "https://github.com/featurist/plastiq-throttle/issues"
   },
   "homepage": "https://github.com/featurist/plastiq-throttle",
-  "description": "Throttle calls to a function, by arguments, by time, and by promise completion.",
-  "dependencies": {
-    "chai": "2.3.0",
-    "plastiq": "1.13.0"
-  }
+  "description": "Throttle calls to a function, by arguments, by time, and by promise completion."
 }
