@@ -1,7 +1,6 @@
 {
   "name": "plastiq-watch",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "directories": {
     "test": "test"
@@ -20,5 +19,17 @@
   },
   "peerDependencies": {
     "plastiq": "*"
-  }
+  },
+  "dependencies": {
+    "chai": "2.3.0",
+    "plastiq": "1.13.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/featurist/plastiq-watch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/featurist/plastiq-watch/issues"
+  },
+  "homepage": "https://github.com/featurist/plastiq-watch"
 }
