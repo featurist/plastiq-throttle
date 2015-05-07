@@ -29,7 +29,7 @@ It is especially useful when synchronising client-side state with server-side re
 * fetching an object from a server-side API by ID, but only if the ID changes, and not too often.
 * performing a heavy search across client-side data, but only if the criteria changes, and not too often.
 
-Also, because it's intended to be used in plastiq apps, your page will refresh after the function completes (if it doesn't immediately).
+Also, because it's intended to be used in plastiq apps, your page will refresh after the function completes (if it's throttled by time, or returns a promise).
 
 # api
 
