@@ -23,6 +23,8 @@ It only calls the function if:
 * the promise returned from the last call has completed
 * last call was made more than `options.throttle` milliseconds ago
 
+It will always eventually call the function with the last given arguments.
+
 It is especially useful when synchronising client-side state with server-side resources or CPU intensive operations, some examples:
 
 * fetching search results for a given search string, but only if the search string changes, and not too often.
