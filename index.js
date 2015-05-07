@@ -8,7 +8,7 @@ module.exports = function (options, fn) {
   }
 
   var refresh;
-  var throttle = options && options.hasOwnProperty('throttle') && options.throttle !== undefined? options.throttle: 0;
+  var throttle = options && options.hasOwnProperty('throttle') && options.throttle !== undefined? options.throttle: 140;
 
   var promise, awaitingPromise, lastTime, lastValue, timeout;
 

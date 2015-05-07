@@ -35,7 +35,7 @@ describe('throttle', function () {
       var t;
 
       beforeEach(function () {
-        t = throttle(function (n) {
+        t = throttle({throttle: 0}, function (n) {
           value = n;
           called++;
         });
@@ -145,7 +145,7 @@ describe('throttle', function () {
       beforeEach(function () {
         values = [];
 
-        t = throttle(function (n) {
+        t = throttle({throttle: 0}, function (n) {
           called++;
           values.push('starting ' + n);
           return wait(10).then(function () {
@@ -383,7 +383,7 @@ describe('throttle', function () {
     function expectDifferent(a, b) {
       var called = 0;
 
-      var t = throttle(function () {
+      var t = throttle({throttle: 0}, function () {
         called++;
       });
 
@@ -396,7 +396,7 @@ describe('throttle', function () {
     function expectSame(a, b) {
       var called = 0;
 
-      var t = throttle(function () {
+      var t = throttle({throttle: 0}, function () {
         called++;
       });
 

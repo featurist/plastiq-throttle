@@ -6,7 +6,7 @@ Throttle calls to a function, by arguments, by time, and by promise completion.
 
     var throttle = require('plastiq-throttle');
 
-    var searchForUsers = throttle({throttle: 100}, function (query) {
+    var searchForUsers = throttle(function (query) {
       return http.get('/search?q' + encodeURIComponent(query)).then(function (users) {
         model.users = users;
       });
@@ -45,7 +45,7 @@ function render() {
 }
 ```
 
-* `options.throttle` - the throttle duration, if `0` (the default) then there is no time-based throttling (only based on arguments and promise completion)
+* `options.throttle` - the throttle duration in milliseconds, default 140. if `0` then there is no time-based throttling (only based on arguments and promise completion)
 * `fn` - a function to be throttled, if it returns a promise, then the next call will be delayed until this promise completes.
 
     Why wait for promises to complete? To eliminate the risk of race-conditions. Imagine you search for users matching `a` first, then `adam`. If we do them concurrently, then the results for `adam` could come back before the results of `a`. `model.users` will be set to the results of `adam` first and then finally to the results of `a`, quite unexpected.
