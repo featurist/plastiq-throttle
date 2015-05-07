@@ -12,7 +12,8 @@ module.exports = function (options, fn) {
 
   var promise, awaitingPromise, lastTime, lastValue, timeout;
 
-  var currentValue;
+  var currentThis;
+  var currentArguments;
 
   function callFn(callRefresh) {
     var self = this;
@@ -28,7 +29,7 @@ module.exports = function (options, fn) {
         awaitingPromise = true;
       }
     } else {
-      var result = fn(currentValue);
+      var result = fn.apply(currentThis, currentArguments);
       if (result && typeof result.then === 'function') {
         promise = result;
         promise.then(function () {
@@ -46,11 +47,23 @@ module.exports = function (options, fn) {
 
 
   function valueHasChanged() {
-    return lastValue !== normalisedValue(currentValue);
+    if (!lastValue) {
+      return true;
+    }
+
+    if (currentArguments.length === 0 || lastValue.length !== currentArguments.length) {
+      return true;
+    }
+
+    for (var n = 0; n < lastValue.length; n++) {
+      if (lastValue[n] !== currentArguments[n]) {
+        return true;
+      }
+    }
   }
 
   function valueChanged() {
-    lastValue = normalisedValue(currentValue);
+    lastValue = currentArguments;
   }
 
   function sync() {
@@ -74,15 +87,10 @@ module.exports = function (options, fn) {
     }
   }
 
-  return function (value) {
+  return function () {
     refresh = h.refresh;
-    currentValue = value;
+    currentThis = this;
+    currentArguments = arguments;
     sync();
   }
 };
-
-function normalisedValue(value) {
-  return value.constructor === Object || value instanceof Array
-    ? JSON.stringify(value)
-    : value;
-}

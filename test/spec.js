@@ -1,10 +1,10 @@
 var chai = require('chai');
 var expect = chai.expect;
-var watch = require('..');
+var throttle = require('..');
 var plastiq = require('plastiq');
 var h = plastiq.html;
 
-describe('watch', function () {
+describe('throttle', function () {
   var called;
 
   function expectToBeCalled(fn) {
@@ -32,10 +32,10 @@ describe('watch', function () {
 
     context('without throttling', function () {
       var value;
-      var w;
+      var t;
 
       beforeEach(function () {
-        w = watch(function (n) {
+        t = throttle(function (n) {
           value = n;
           called++;
         });
@@ -50,60 +50,60 @@ describe('watch', function () {
       });
 
       it('runs the first time', function () {
-        expectToBeCalled(function () { w(1); });
+        expectToBeCalled(function () { t(1); });
         expect(value).to.equal(1);
       });
 
       it("isn't run the second time", function () {
-        expectToBeCalled(function () { w(1); });
-        expectNotToBeCalled(function () { w(1); });
+        expectToBeCalled(function () { t(1); });
+        expectNotToBeCalled(function () { t(1); });
         expect(value).to.equal(1);
       });
 
       it("is run the second time if the value is different", function () {
-        expectToBeCalled(function () { w(1); });
-        expectToBeCalled(function () { w(2); });
+        expectToBeCalled(function () { t(1); });
+        expectToBeCalled(function () { t(2); });
         expect(value).to.equal(2);
       });
 
       it("is not run the third time if the value is the same as the second", function () {
-        expectToBeCalled(function () { w(1); });
-        expectToBeCalled(function () { w(2); });
-        expectNotToBeCalled(function () { w(2); });
+        expectToBeCalled(function () { t(1); });
+        expectToBeCalled(function () { t(2); });
+        expectNotToBeCalled(function () { t(2); });
         expect(value).to.equal(2);
       });
 
       it("is run the third time if the value is same as first", function () {
-        expectToBeCalled(function () { w(1); });
-        expectToBeCalled(function () { w(2); });
-        expectToBeCalled(function () { w(1); });
+        expectToBeCalled(function () { t(1); });
+        expectToBeCalled(function () { t(2); });
+        expectToBeCalled(function () { t(1); });
         expect(value).to.equal(1);
       });
     });
 
     context('with throttling', function () {
-      var throttle = 10;
+      var throttleDuration = 10;
 
       beforeEach(function () {
         calledRefresh = false;
         called = 0;
 
-        w = watch({throttle: throttle}, function (n) {
+        t = throttle({throttle: throttleDuration}, function (n) {
           value = n;
           called++;
         });
       });
 
       it('runs the first time', function () {
-        expectToBeCalled(function () { w(1); });
+        expectToBeCalled(function () { t(1); });
         expect(value).to.equal(1);
       });
 
       it("doesn't run the second time if the value is the same", function () {
-        expectToBeCalled(function () { w(1); });
-        expectNotToBeCalled(function () { w(1); });
+        expectToBeCalled(function () { t(1); });
+        expectNotToBeCalled(function () { t(1); });
 
-        return wait(throttle * 2).then(function () {
+        return wait(throttleDuration * 2).then(function () {
           expect(called).to.equal(1);
           expect(calledRefresh).to.be.false;
         });
@@ -113,8 +113,8 @@ describe('watch', function () {
         return new Promise(function (done) {
           h.refresh = done;
 
-          expectToBeCalled(function () { w(1); });
-          expectNotToBeCalled(function () { w(2); });
+          expectToBeCalled(function () { t(1); });
+          expectNotToBeCalled(function () { t(2); });
         }).then(function () {
           expect(value).to.equal(2);
         });
@@ -124,11 +124,11 @@ describe('watch', function () {
         return new Promise(function (done) {
           h.refresh = done;
 
-          expectToBeCalled(function () { w(1); });
-          expectNotToBeCalled(function () { w(2); });
-          expectNotToBeCalled(function () { w(3); });
-          expectNotToBeCalled(function () { w(4); });
-          expectNotToBeCalled(function () { w(5); });
+          expectToBeCalled(function () { t(1); });
+          expectNotToBeCalled(function () { t(2); });
+          expectNotToBeCalled(function () { t(3); });
+          expectNotToBeCalled(function () { t(4); });
+          expectNotToBeCalled(function () { t(5); });
         }).then(function () {
           expect(value).to.equal(5);
           expect(called).to.equal(2);
@@ -139,13 +139,13 @@ describe('watch', function () {
 
   describe('asynchronous actions', function () {
     context('without throttle', function () {
-      var w;
+      var t;
       var values;
 
       beforeEach(function () {
         values = [];
 
-        w = watch(function (n) {
+        t = throttle(function (n) {
           called++;
           values.push('starting ' + n);
           return wait(10).then(function () {
@@ -158,7 +158,7 @@ describe('watch', function () {
         return new Promise(function (done) {
           h.refresh = done;
 
-          expectToBeCalled(function () { w(1); });
+          expectToBeCalled(function () { t(1); });
         }).then(function () {
           expect(values).to.eql([
             'starting 1',
@@ -170,7 +170,7 @@ describe('watch', function () {
       it('calls the second time if the first one has finished', function () {
         return new Promise(function (done) {
           h.refresh = done;
-          expectToBeCalled(function () { w(1); });
+          expectToBeCalled(function () { t(1); });
         }).then(function () {
           return new Promise(function (done) {
             expect(values).to.eql([
@@ -179,7 +179,7 @@ describe('watch', function () {
             ]);
 
             h.refresh = done;
-            expectToBeCalled(function () { w(2); });
+            expectToBeCalled(function () { t(2); });
           });
         }).then(function () {
           expect(values).to.eql([
@@ -195,8 +195,8 @@ describe('watch', function () {
         return new Promise(function (done) {
           h.refresh = done;
 
-          expectToBeCalled(function () { w(1); });
-          expectNotToBeCalled(function () { w(1); });
+          expectToBeCalled(function () { t(1); });
+          expectNotToBeCalled(function () { t(1); });
         }).then(function () {
           return wait(20);
         }).then(function () {
@@ -211,8 +211,8 @@ describe('watch', function () {
         return new Promise(function (done) {
           h.refresh = done;
 
-          expectToBeCalled(function () { w(1); });
-          expectNotToBeCalled(function () { w(2); });
+          expectToBeCalled(function () { t(1); });
+          expectNotToBeCalled(function () { t(2); });
         }).then(function () {
           return wait(20);
         }).then(function () {
@@ -229,11 +229,11 @@ describe('watch', function () {
         return new Promise(function (done) {
           h.refresh = done;
 
-          expectToBeCalled(function () { w(1); });
-          expectNotToBeCalled(function () { w(2); });
-          expectNotToBeCalled(function () { w(3); });
-          expectNotToBeCalled(function () { w(4); });
-          expectNotToBeCalled(function () { w(5); });
+          expectToBeCalled(function () { t(1); });
+          expectNotToBeCalled(function () { t(2); });
+          expectNotToBeCalled(function () { t(3); });
+          expectNotToBeCalled(function () { t(4); });
+          expectNotToBeCalled(function () { t(5); });
         }).then(function () {
           return wait(20);
         }).then(function () {
@@ -248,7 +248,7 @@ describe('watch', function () {
     });
 
     context('with throttling', function () {
-      var throttle = 20;
+      var throttleDuration = 20;
       var values;
       var promise;
       var promiseDuration;
@@ -258,7 +258,7 @@ describe('watch', function () {
         values = [];
         promiseDuration = 0;
 
-        w = watch({throttle: throttle}, function (n) {
+        t = throttle({throttle: throttleDuration}, function (n) {
           called++;
           values.push('starting ' + n);
           return promise = wait(promiseDuration).then(function () {
@@ -270,7 +270,7 @@ describe('watch', function () {
       it('runs the first time', function () {
         return new Promise(function (done) {
           h.refresh = done;
-          expectToBeCalled(function () { w(1); });
+          expectToBeCalled(function () { t(1); });
         }).then(function () {
           expect(values).to.eql([
             'starting 1',
@@ -282,7 +282,7 @@ describe('watch', function () {
       it("skips calls if they are within the throttle, but always runs the last", function () {
         return new Promise(function (done) {
           h.refresh = done;
-          expectToBeCalled(function () { w(1); });
+          expectToBeCalled(function () { t(1); });
         }).then(function () {
           return wait(1);
         }).then(function () {
@@ -290,7 +290,7 @@ describe('watch', function () {
             'starting 1',
             'finishing 1',
           ]);
-          expectNotToBeCalled(function () { w(2); });
+          expectNotToBeCalled(function () { t(2); });
         }).then(function () {
           return wait(1);
         }).then(function () {
@@ -298,7 +298,7 @@ describe('watch', function () {
             'starting 1',
             'finishing 1',
           ]);
-          expectNotToBeCalled(function () { w(3); });
+          expectNotToBeCalled(function () { t(3); });
         }).then(function () {
           return wait(1);
         }).then(function () {
@@ -306,7 +306,7 @@ describe('watch', function () {
             'starting 1',
             'finishing 1',
           ]);
-          expectNotToBeCalled(function () { w(4); });
+          expectNotToBeCalled(function () { t(4); });
         }).then(function () {
           return wait(1);
         }).then(function () {
@@ -317,7 +317,7 @@ describe('watch', function () {
               'starting 1',
               'finishing 1',
             ]);
-            expectNotToBeCalled(function () { w(5); });
+            expectNotToBeCalled(function () { t(5); });
           });
         }).then(function () {
           expect(values).to.eql([
@@ -337,7 +337,7 @@ describe('watch', function () {
         it('runs each promise one after the other', function () {
           return new Promise(function (done) {
             h.refresh = done;
-            expectToBeCalled(function () { w(1); });
+            expectToBeCalled(function () { t(1); });
           }).then(function () {
             return promise;
           }).then(function () {
@@ -347,7 +347,7 @@ describe('watch', function () {
               'starting 1',
               'finishing 1'
             ]);
-            expectToBeCalled(function () { w(2); });
+            expectToBeCalled(function () { t(2); });
           }).then(function () {
             return promise;
           }).then(function () {
@@ -359,7 +359,7 @@ describe('watch', function () {
               'starting 2',
               'finishing 2'
             ]);
-            expectToBeCalled(function () { w(3); });
+            expectToBeCalled(function () { t(3); });
           }).then(function () {
             return promise;
           }).then(function () {
@@ -376,6 +376,85 @@ describe('watch', function () {
           });
         });
       });
+    });
+  });
+
+  describe('equality', function () {
+    function expectDifferent(a, b) {
+      var called = 0;
+
+      var t = throttle(function () {
+        called++;
+      });
+
+      t.apply(undefined, a);
+      t.apply(undefined, b);
+
+      expect(called, 'expected ' + a + ' and ' + b + ' to be considered different').to.equal(2);
+    }
+
+    function expectSame(a, b) {
+      var called = 0;
+
+      var t = throttle(function () {
+        called++;
+      });
+
+      t.apply(undefined, a);
+      t.apply(undefined, b);
+
+      expect(called, 'expected ' + a + ' and ' + b + ' to be considered the same').to.equal(1);
+    }
+
+    it('numbers', function () {
+      expectDifferent([1], [2]);
+      expectSame([1], [1]);
+    });
+
+    it('strings', function () {
+      expectDifferent(["a"], ["b"]);
+      expectSame(["a"], ["a"]);
+    });
+
+    it('strings are different to numbers', function () {
+      expectDifferent(["1"], [1]);
+    });
+
+    it('booleans', function () {
+      expectDifferent([true], [false]);
+      expectSame([true], [true]);
+    });
+
+    it('dates', function () {
+      expectDifferent([new Date(2013, 1, 2)], [new Date(2013, 1, 3)]);
+      var d = new Date(2013, 1, 2);
+      expectSame([d], [d]);
+    });
+
+    it('objects', function () {
+      expectDifferent([{value: '1'}], [{value: '1'}]);
+      var obj = {value: '1'}
+      expectSame([obj], [obj]);
+    });
+
+    it('arrays', function () {
+      expectDifferent([[1]], [[1]]);
+      var a = [1];
+      expectSame([a], [a]);
+    });
+
+    it('multiple values', function () {
+      expectDifferent([1, 2], [1]);
+      expectDifferent([1, 2], [1, 3]);
+      expectSame([1, 2], [1, 2]);
+    });
+
+    it('no arguments are considered different', function () {
+      expectDifferent([], []);
+    });
+
+    it('undefined', function () {
+      expectSame([undefined], [undefined]);
     });
   });
 });

@@ -1,5 +1,5 @@
 {
-  "name": "plastiq-watch",
+  "name": "plastiq-throttle",
   "version": "1.0.0",
   "main": "index.js",
   "directories": {
@@ -20,16 +20,17 @@
   "peerDependencies": {
     "plastiq": "*"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/featurist/plastiq-throttle.git"
+  },
+  "bugs": {
+    "url": "https://github.com/featurist/plastiq-throttle/issues"
+  },
+  "homepage": "https://github.com/featurist/plastiq-throttle",
+  "description": "Throttle calls to a function, by arguments, by time, and by promise completion.",
   "dependencies": {
     "chai": "2.3.0",
     "plastiq": "1.13.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/featurist/plastiq-watch.git"
-  },
-  "bugs": {
-    "url": "https://github.com/featurist/plastiq-watch/issues"
-  },
-  "homepage": "https://github.com/featurist/plastiq-watch"
+  }
 }
