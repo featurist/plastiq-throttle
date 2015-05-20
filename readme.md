@@ -50,6 +50,6 @@ function render() {
 
     Why wait for promises to complete? To eliminate the risk of race-conditions. Imagine you search for users matching `a` first, then `adam`. If we do them concurrently, then the results for `adam` could come back before the results of `a`. `model.users` will be set to the results of `adam` first and then finally to the results of `a`, quite unexpected.
 
-* `arg1`, `arg2`, ... - arguments to be passed to `fn`.
+* `arg1`, `arg2`, ... - arguments to be passed to `fn`. If no arguments are passed, then they are considered to be different, that is, the function is potentially executed (considering throttle-time has passed and the previous promise have completed.)
 
 Note that in order to have the page refreshed when a promise completes, or a throttled call is executed, you must call `throttledFn` inside the render loop, i.e. have `plastiq.html.refresh`.
