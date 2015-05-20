@@ -3,6 +3,7 @@ var expect = chai.expect;
 var throttle = require('..');
 var plastiq = require('plastiq');
 var h = plastiq.html;
+var retry = require('trytryagain');
 
 describe('throttle', function () {
   var called;
@@ -140,6 +141,7 @@ describe('throttle', function () {
   describe('asynchronous actions', function () {
     context('without throttle', function () {
       var t;
+      var f;
       var values;
 
       beforeEach(function () {
@@ -150,6 +152,15 @@ describe('throttle', function () {
           values.push('starting ' + n);
           return wait(10).then(function () {
             values.push('finishing ' + n);
+          });
+        });
+
+        f = throttle({throttle: 0}, function (n) {
+          called++;
+          values.push('starting ' + n);
+          return wait(10).then(function () {
+            values.push('failing ' + n);
+            throw new Error('failed ' + n);
           });
         });
       });
@@ -188,6 +199,54 @@ describe('throttle', function () {
             'starting 2',
             'finishing 2'
           ]);
+        });
+      });
+
+      it('calls the second time if the first one has finished, even if it was rejected', function () {
+        return new Promise(function (done) {
+          expectToBeCalled(function () { f(1); });
+
+          retry(function () {
+            expect(values).to.eql([
+              'starting 1',
+              'failing 1'
+            ]);
+          }).then(done);
+        }).then(function () {
+          return new Promise(function (done) {
+            expectToBeCalled(function () { f(2); });
+            done();
+          });
+        }).then(function () {
+          return retry(function () {
+            expect(values).to.eql([
+              'starting 1',
+              'failing 1',
+              'starting 2',
+              'failing 2'
+            ]);
+          });
+        });
+      });
+
+      it('calls the second time after the first one has finished, even if it was rejected', function () {
+        return new Promise(function (done) {
+          expectToBeCalled(function () { f(1); });
+          done();
+        }).then(function () {
+          return new Promise(function (done) {
+            expectNotToBeCalled(function () { f(2); });
+            done();
+          });
+        }).then(function () {
+          return retry(function () {
+            expect(values).to.eql([
+              'starting 1',
+              'failing 1',
+              'starting 2',
+              'failing 2'
+            ]);
+          });
         });
       });
 

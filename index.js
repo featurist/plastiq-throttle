@@ -24,6 +24,11 @@ module.exports = function (options, fn) {
           promise = undefined;
           awaitingPromise = undefined;
           sync();
+        }, function (e) {
+          promise = undefined;
+          awaitingPromise = undefined;
+          sync();
+          throw e;
         });
 
         awaitingPromise = true;
@@ -35,6 +40,9 @@ module.exports = function (options, fn) {
         promise.then(function () {
           promise = undefined;
           refresh();
+        }, function (e) {
+          promise = undefined;
+          throw e;
         });
       }
       valueChanged();
