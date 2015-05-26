@@ -95,10 +95,16 @@ module.exports = function (options, fn) {
     }
   }
 
-  return function () {
+  function throttledFunction() {
     refresh = h.refresh;
     currentThis = this;
     currentArguments = arguments;
     sync();
   }
+
+  throttledFunction.reset = function () {
+    lastValue = undefined;
+  };
+
+  return throttledFunction;
 };

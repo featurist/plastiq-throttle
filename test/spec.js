@@ -67,6 +67,13 @@ describe('throttle', function () {
         expect(value).to.equal(2);
       });
 
+      it("is run the second time if the value is the same and it was reset", function () {
+        expectToBeCalled(function () { t(1); });
+        t.reset();
+        expectToBeCalled(function () { t(1); });
+        expect(value).to.equal(1);
+      });
+
       it("is not run the third time if the value is the same as the second", function () {
         expectToBeCalled(function () { t(1); });
         expectToBeCalled(function () { t(2); });

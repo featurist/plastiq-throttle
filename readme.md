@@ -53,3 +53,11 @@ function render() {
 * `arg1`, `arg2`, ... - arguments to be passed to `fn`. If no arguments are passed, then they are considered to be different, that is, the function is potentially executed (considering throttle-time has passed and the previous promise have completed.)
 
 Note that in order to have the page refreshed when a promise completes, or a throttled call is executed, you must call `throttledFn` inside the render loop, i.e. have `plastiq.html.refresh`.
+
+## reset
+
+```js
+throttledFn.reset();
+```
+
+Ensures that the next call to the function will execute, pending throttling and promise returns. Useful if you know that an underlying datasource has changed.
