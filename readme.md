@@ -4,18 +4,20 @@ Throttle calls to a function, by arguments, by time, and by promise completion.
 
 # example
 
-    var throttle = require('plastiq-throttle');
+```js
+var throttle = require('plastiq-throttle');
 
-    var searchForUsers = throttle(function (query) {
-      return http.get('/search?q' + encodeURIComponent(query)).then(function (users) {
-        model.users = users;
-      });
-    });
+var searchForUsers = throttle(function (query) {
+  return http.get('/search?q=' + encodeURIComponent(query)).then(function (users) {
+    model.users = users;
+  });
+});
 
-    searchForUsers('a');     // GET /search?q=a
-    searchForUsers('ad');    // -- skip --
-    searchForUsers('ada');   // -- skip --
-    searchForUsers('adam');  // GET /search?q=adam
+searchForUsers('a');     // GET /search?q=a
+searchForUsers('ad');    // -- skip --
+searchForUsers('ada');   // -- skip --
+searchForUsers('adam');  // GET /search?q=adam
+```
 
 It only calls the function if:
 
